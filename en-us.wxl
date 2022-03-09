@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WixLocalization Culture="en-us" Codepage="UTF-8" xmlns="http://schemas.microsoft.com/wix/2006/localization">
+	<String Id="LicenseAgreementDlgTitle">Software License</String>
+    <String Id="LicenseAgreementDlgDescription">Please read the following license carefully</String>
+    <String Id="LicenseAgreementDlgLicenseAcceptedCheckBox">I acknowldege the license.</String>
+</WixLocalization>

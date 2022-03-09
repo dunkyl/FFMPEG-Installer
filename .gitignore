@@ -1,0 +1,8 @@
+*.7z
+*.g.wxs
+FFMPEG/
+*.wixobj
+*.wixpdb
+*.msi
+*.png 
+cabinets
