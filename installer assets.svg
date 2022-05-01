@@ -24,15 +24,15 @@
      inkscape:pagecheckerboard="true"
      inkscape:document-units="mm"
      showgrid="false"
-     inkscape:zoom="1.4142136"
-     inkscape:cx="922.77435"
-     inkscape:cy="188.79751"
+     inkscape:zoom="1"
+     inkscape:cx="1053"
+     inkscape:cy="229"
      inkscape:window-width="2560"
      inkscape:window-height="1369"
      inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     inkscape:current-layer="g18890"
+     inkscape:current-layer="layer1"
      inkscape:snap-center="true"
      inkscape:snap-smooth-nodes="true"
      inkscape:snap-global="true" />
@@ -303,6 +303,22 @@
        x="176.86852"
        y="-185.89641"
        transform="rotate(90)" />
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke-width:0.464245;stop-color:#000000"
+       id="rect886-80-4"
+       width="67.73333"
+       height="67.73333"
+       x="35.189583"
+       y="-455.08334"
+       transform="rotate(90)" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#g18890"
+       id="use37948"
+       width="100%"
+       height="100%"
+       transform="matrix(1.6781663,0,0,1.6781663,-123.46602,-29.293065)" />
     <rect
        style="fill:#ffffff;fill-opacity:1;stroke-width:0.0580306;stop-color:#000000"
        id="rect886-80-1"
