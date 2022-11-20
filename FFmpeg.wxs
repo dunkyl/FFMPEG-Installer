@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
 	
-	<Product Id="*" Name="FFmpeg" Language="1033" Version="5.0.0" Manufacturer="Dunkyl 🔣🔣" UpgradeCode="3a567af2-24ac-410e-9066-5e9278944025" Codepage="UTF-8">
+	<Product Id="*" Name="FFmpeg" Language="1033" Version="5.1.2" Manufacturer="Dunkyl 🔣🔣" UpgradeCode="3a567af2-24ac-410e-9066-5e9278944025" Codepage="UTF-8">
 		
 		<Package InstallerVersion="200" Compressed="yes" />
 
