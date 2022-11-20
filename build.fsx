@@ -57,7 +57,7 @@ let fetchFFMPEG () = task {
     let! res_ver = httpClient.GetAsync "https://www.gyan.dev/ffmpeg/builds/release-version"
     let! releaseVer = res_ver.Content.ReadAsStringAsync()
 
-    let releaseURL = $"https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-full.7z"
+    let releaseURL = $"https://www.gyan.dev/ffmpeg/builds/packages/ffmpeg-{releaseVer}-full_build.7z"
 
     let! res_sha = httpClient.GetAsync $"{releaseURL}.sha256"
     let! sha = res_sha.Content.ReadAsStringAsync()
@@ -97,11 +97,11 @@ let fetchFFMPEG () = task {
 
         // rename to folder without version
         Directory.Move($"ffmpeg-{releaseVer}-full_build", "FFMPEG")
-
+    return releaseVer
 }
 
 printfn "Fetching latest release:"
-fetchFFMPEG() |> Async.AwaitTask |> Async.RunSynchronously
+let version = fetchFFMPEG() |> Async.AwaitTask |> Async.RunSynchronously
 
 let heat s = run "heat" s
 
@@ -138,9 +138,7 @@ for componentId, path in genComponents do
 
     // work around for correcting the Source path for files
     // just a find and replace for 'SourceDir'
-    use f = File.OpenText $"{componentId.ToLower()}.g.wxs"
-    let newText = f.ReadToEnd().Replace("SourceDir", $"SourceDir/{sourceDirName}")
-    f.Close()
+    let newText = (File.ReadAllText $"{componentId.ToLower()}.g.wxs").Replace("SourceDir", $"SourceDir/{sourceDirName}")
     
     use f = File.CreateText $"{componentId.ToLower()}.g.wxs"
     f.Write newText
@@ -150,14 +148,17 @@ let product = "FFmpeg"
 
 printfn "Candle..."
 
+let newMainWxs = (File.ReadAllText $"{product}.wxs").Replace("$VERSION", version)
+File.WriteAllText($"{product}.g.wxs", newMainWxs)
+
 let genScripts =
     Directory.EnumerateFiles "."
     |> Seq.filter (fun s -> s.EndsWith ".g.wxs")
     |> List.ofSeq
 
 let genScriptsStr = String.Join(" ", genScripts)
- 
-candle $"""-arch x64 {product}.wxs {genScriptsStr}"""
+
+candle $"""-arch x64 {product}.g.wxs {genScriptsStr}"""
 
 let elapsedCandle = DateTime.Now - startTime
 
