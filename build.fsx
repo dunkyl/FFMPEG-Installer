@@ -65,11 +65,11 @@ let fetchFFMPEG () = task {
     let zipFileName = filenameOf releaseURL
 
     if File.Exists zipFileName then
-        printfn "   Found existing release."
+        printfn $"   Found existing release at {zipFileName}."
     else
-        printfn "   Downloading release..."
+        printfn $"   Downloading release {releaseVer}..."
         do! download releaseURL
-        printfn "   Downloaded release."
+        printfn "   Downloaded release!"
     
     // checksum
     let sha_downloaded =
@@ -169,6 +169,8 @@ let genObjs =
     |> List.ofSeq
 
 let genObjsStr = String.Join(" ", genObjs)
+
+printfn "Light..."
 
 // genObjsStr includes the product.wixobj
 //      -b FFMPEG -b FFMPEG/bin -b FFMPEG/presets -b FFMPEG/doc
