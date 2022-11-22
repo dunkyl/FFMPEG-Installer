@@ -112,33 +112,36 @@ let light s = run "light" s
 let startTime = DateTime.Now
 
 let genComponents = [
-    "FFMPEGbin", "FFMPEG/bin"
-    "FFMPEGlicense", "FFMPEG/LICENSE"
-    "FFMPEGreadme", "FFMPEG/README.txt"
-    "FFMPEGdoc", "FFMPEG/doc"
-    "FFMPEGpresets", "FFMPEG/presets"
+    "FFMPEGbin", "FFMPEG\\bin"
+    "FFMPEGlicense", "FFMPEG\\LICENSE"
+    "FFMPEGreadme", "FFMPEG\\README.txt"
+    "FFMPEGdoc", "FFMPEG\\doc"
+    "FFMPEGpresets", "FFMPEG\\presets"
 ]
 printfn "Generating components..."
 
 for componentId, path in genComponents do
     let type', maybe_srd, sourceDirName =
         if File.Exists path then
-            printfn $"   file: ./{path} -> {componentId}"
-            "file", "-srd", path.Split('/')[0]
+            printfn $"   file: .\\{path} -> {componentId}"
+            "file", "-srd", path.Split('\\')[0] // -srd
         else
-            printfn $"   directory: ./{path}/* -> {componentId}"
+            printfn $"   directory: .\\{path}/* -> {componentId}"
             "dir", "", path
     // nologo: this is automated
-    // srd: for files, do not nest the FFMPEG/ directory into INSTALLDIR
+    // srd: for files, do not nest the FFMPEG\ directory into INSTALLDIR
     // sreg: do not harvest registry info from the EXE's
     // sfrag: no need for separate fragments in these components
     // gg: i dont care what the GUID's are (at least, at the moment)
-    // dr: put these in the FFMPEG/ directory
+    // dr: put these in the FFMPEG\ directory
     heat $"{type'} {path} -nologo {maybe_srd} -sreg -sfrag -gg -dr INSTALLDIR -cg {componentId} -out {componentId.ToLower()}.g.wxs"
 
     // work around for correcting the Source path for files
     // just a find and replace for 'SourceDir'
-    let newText = (File.ReadAllText $"{componentId.ToLower()}.g.wxs").Replace("SourceDir", $"SourceDir/{sourceDirName}")
+
+    // maybe using \ instead of / in genComponenets fixed this!
+
+    let newText = (File.ReadAllText $"{componentId.ToLower()}.g.wxs").Replace("SourceDir", $"""SourceDir\{sourceDirName}""")
     
     use f = File.CreateText $"{componentId.ToLower()}.g.wxs"
     f.Write newText
@@ -148,8 +151,8 @@ let product = "FFmpeg"
 
 printfn "Candle..."
 
-let newMainWxs = (File.ReadAllText $"{product}.wxs").Replace("$VERSION", version)
-File.WriteAllText($"{product}.g.wxs", newMainWxs)
+// let newMainWxs = (File.ReadAllText $"{product}.wxs").Replace("$VERSION", version)
+// File.WriteAllText($"{product}.g.wxs", newMainWxs)
 
 let genScripts =
     Directory.EnumerateFiles "."
@@ -158,7 +161,9 @@ let genScripts =
 
 let genScriptsStr = String.Join(" ", genScripts)
 
-candle $"""-arch x64 {product}.g.wxs {genScriptsStr}"""
+// exit 1
+
+candle $"""-arch x64 {product}.wxs {genScriptsStr}""" // {product}.wxs 
 
 let elapsedCandle = DateTime.Now - startTime
 
