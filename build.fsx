@@ -126,7 +126,7 @@ for componentId, path in genComponents do
             printfn $"   file: .\\{path} -> {componentId}"
             "file", "-srd", path.Split('\\')[0] // -srd
         else
-            printfn $"   directory: .\\{path}/* -> {componentId}"
+            printfn $"   directory: .\\{path}\\* -> {componentId}"
             "dir", "", path
     // nologo: this is automated
     // srd: for files, do not nest the FFMPEG\ directory into INSTALLDIR
@@ -139,7 +139,7 @@ for componentId, path in genComponents do
     // work around for correcting the Source path for files
     // just a find and replace for 'SourceDir'
 
-    // maybe using \ instead of / in genComponenets fixed this!
+    // maybe using \ instead of / in genComponenets fixed this! no..
 
     let newText = (File.ReadAllText $"{componentId.ToLower()}.g.wxs").Replace("SourceDir", $"""SourceDir\{sourceDirName}""")
     
@@ -151,8 +151,7 @@ let product = "FFmpeg"
 
 printfn "Candle..."
 
-// let newMainWxs = (File.ReadAllText $"{product}.wxs").Replace("$VERSION", version)
-// File.WriteAllText($"{product}.g.wxs", newMainWxs)
+
 
 let genScripts =
     Directory.EnumerateFiles "."
@@ -160,6 +159,9 @@ let genScripts =
     |> List.ofSeq
 
 let genScriptsStr = String.Join(" ", genScripts)
+
+// let newMainWxs = (File.ReadAllText $"{product}.wxs").Replace("$VERSION", version)
+// File.WriteAllText($"{product}.g.wxs", newMainWxs)
 
 // exit 1
 
