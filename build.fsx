@@ -151,6 +151,8 @@ let product = "FFmpeg"
 
 printfn "Candle..."
 
+let newMainWxs = (File.ReadAllText $"{product}.wxs").Replace("$VERSION", version)
+File.WriteAllText($"{product}.g.wxs", newMainWxs)
 
 
 let genScripts =
@@ -160,12 +162,11 @@ let genScripts =
 
 let genScriptsStr = String.Join(" ", genScripts)
 
-// let newMainWxs = (File.ReadAllText $"{product}.wxs").Replace("$VERSION", version)
-// File.WriteAllText($"{product}.g.wxs", newMainWxs)
+
 
 // exit 1
 
-candle $"""-arch x64 {product}.wxs {genScriptsStr}""" // {product}.wxs 
+candle $"""-arch x64 {genScriptsStr}""" // {product}.wxs 
 
 let elapsedCandle = DateTime.Now - startTime
 
