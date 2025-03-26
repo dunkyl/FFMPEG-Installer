@@ -1,91 +1,69 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-	
-	<Product Id='07cc389f-8502-4269-a0db-2ba31d3511a6' Name="FFmpeg" Language="1033" Version="$VERSION" Manufacturer="Dunkyl 🔣🔣" UpgradeCode="3a567af2-24ac-410e-9066-5e9278944025" Codepage="UTF-8">
-		
-		<Package Id='*' InstallerVersion="200" Compressed="yes" />
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+	xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui"
 
-		<Condition Message="You need to be an administrator to install this product.">
-			Privileged
-		</Condition>
+>
+	<Package Name="FFmpeg" Language="1033" Version="$VERSION" Manufacturer="Dunkyl 🔣🔣" UpgradeCode="3a567af2-24ac-410e-9066-5e9278944025" Codepage="UTF-8"
 
-		<Media Id='1' Cabinet='ffmpeg.cab' EmbedCab='yes'  /> <!-- DiskPrompt='CD-ROM #1' -->
+		>
+		<Property Id="MSIUSEREALADMINDETECTION" Value="1" />
 
-		<Directory Id='TARGETDIR' Name='SourceDir'>
+		<StandardDirectory Id="ProgramFiles6432Folder">
+			<Directory Name="FFmpeg" Id="INSTALLDIR">
+			</Directory>
+		</StandardDirectory>
 
-			<Directory Id='ProgramFiles64Folder' Name='PFiles'>
-				<Directory Id='INSTALLDIR' Name='FFmpeg'>
-					<Component Id="UpdatePath" Guid='53269529-139a-4856-9506-199377827ced'>
-						<CreateFolder />
-						<Environment 
+		<DirectoryRef Id="INSTALLDIR">
+			<Directory Name="bin" Id="bin">
+				<Component Id="exe" Guid="9fbfa205-5ee1-4e7c-8f21-a7f1058bcb42">
+					<File Id="ffmpegexe" Source="FFMPEG\bin\ffmpeg.exe" KeyPath="yes" />
+					<File Id="ffplayexe" Source="FFMPEG\bin\ffplay.exe" />
+					<File Id="ffprobeexe" Source="FFMPEG\bin\ffprobe.exe" />
+				</Component>
+				<Component Id="UpdatePath" Guid='53269529-139a-4856-9506-199377827ced'>
+					<Environment 
 							Id="UpdatePath" 
 							Name="PATH" 
 							Value="[INSTALLDIR]\bin" 
 							Part="last" 
 							Action="set" 
 							System="yes"/>
-					</Component>
-				</Directory>
+				</Component>
+				
 			</Directory>
-
-
-			<Directory Id="DesktopFolder" Name="Desktop" />
-			<Directory Id="ProgramMenuFolder">
-				<Directory Id="ProgramMenuDir" Name="FFmpeg">
-					<Component Id="StartMenuManual" Guid='54ac269d-bce0-434d-876c-4070ee2e041a'>
-						<RemoveFolder Id='ProgramMenuDir' On='uninstall' />
-                		<RegistryValue Root='HKCU' Key='Software\[Manufacturer]\[ProductName]' Type='string' Value='' KeyPath='yes' />
-						<Shortcut
-							Id="ManualShortcut"
-							Directory="ProgramMenuDir"
-							Target="[INSTALLDIR]\doc\ffmpeg.html" 
-							Name="FFmpeg Documentation"
-							WorkingDirectory="INSTALLDIR" >
-						</Shortcut>
-					</Component>
-				</Directory>
+			<!-- <Component Id="docs" Guid='53254329-139a-4856-9506-199377827ced'> -->
+			<Directory Name="doc" Id="doc">
+				
 			</Directory>
-			
-			
-		</Directory>
-
+			<!-- </Component> -->
+			<Component Id="license" Guid="91bfa205-5ee1-4e7c-8f21-a7f1058bcb42">
+				<File Id="license" Source="FFMPEG\LICENSE" KeyPath="yes" />
+			</Component>
+		</DirectoryRef>
 
 		<Feature Id="Complete" Title='FFmpeg' Description='The complete package.'
-    Display='collapse' Level="1" ConfigurableDirectory='INSTALLDIR'>
-
-			<Feature Id="Core" Title='Core' Level="1" >
-				<ComponentGroupRef Id="FFMPEGbin"/>
-				<ComponentGroupRef Id="FFMPEGreadme"/>
-				<ComponentGroupRef Id="FFMPEGlicense"/>
+    		Display='collapse' Level="1" ConfigurableDirectory='INSTALLDIR'>
+			<Feature Id="Core" Title="Main Core" Level="1">
+				<ComponentRef Id="exe"/>
+				<ComponentRef Id="license"/>
+				<Feature Id="Documentation">
+					<Files Directory="doc" Include="FFMPEG\doc\*" />
+				</Feature>
 				<Feature Id="AddToPath" Title='Add to PATH' Level="1">
 					<ComponentRef Id="UpdatePath"/>
 				</Feature>
 			</Feature>
-
-			<Feature Id="Manual" Title='Documentation' Level="1" >
-				<ComponentGroupRef Id="FFMPEGdoc"/>
-				<ComponentRef Id='StartMenuManual'/>
-			</Feature>
-
-			<Feature Id="Presets" Title='Presets' Level="1" >
-				<ComponentGroupRef Id="FFMPEGpresets"/>
-			</Feature>
 		</Feature>
 
-		<Icon Id="icon.ico" SourceFile="icon.ico"/>
-		<Property Id="ARPPRODUCTICON" Value="icon.ico" />
+		<ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLDIR" />
+
 		<WixVariable Id="WixUILicenseRtf" Value="gplv3.rtf" />
 		<WixVariable Id="WixUIBannerBmp" Value="banner.bmp" />
 		<WixVariable Id="WixUIDialogBmp" Value="dialog.bmp" />
-		<!-- <WixVariable Id="WixUIExclamationIco" Value="path\exclamation.ico" />
-		<WixVariable Id="WixUIInfoIco" Value="path\information.ico" />
-		<WixVariable Id="WixUINewIco" Value="path\new.ico" />
-		<WixVariable Id="WixUIUpIco" Value="path\up.ico" /> -->
 
-		<Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
-		<UIRef Id="WixUI_InstallDir" />
-		<!-- <UIRef Id="WixUI_Mondo" /> -->
+		<Icon Id="icon.ico" SourceFile="icon.ico"/>
+		<Property Id="ARPPRODUCTICON" Value="icon.ico" />
 
-		
-	</Product>
+	</Package>
+	
 </Wix>

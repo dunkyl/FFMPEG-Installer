@@ -5,4 +5,6 @@ FFMPEG/
 *.wixpdb
 *.msi
 *.png 
+*.cab
+.wix/
 cabinets

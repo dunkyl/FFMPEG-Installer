@@ -111,86 +111,90 @@ let light s = run "light" s
 
 let startTime = DateTime.Now
 
-let genComponents = [
-    "FFMPEGbin", "FFMPEG\\bin"
-    "FFMPEGlicense", "FFMPEG\\LICENSE"
-    "FFMPEGreadme", "FFMPEG\\README.txt"
-    "FFMPEGdoc", "FFMPEG\\doc"
-    "FFMPEGpresets", "FFMPEG\\presets"
-]
-printfn "Generating components..."
+let newMainWxs = (File.ReadAllText $"FFmpeg.wxs").Replace("$VERSION", version)
+File.WriteAllText($"FFmpeg.g.wxs", newMainWxs)
 
-for componentId, path in genComponents do
-    let type', maybe_srd, sourceDirName =
-        if File.Exists path then
-            printfn $"   file: .\\{path} -> {componentId}"
-            "file", "-srd", path.Split('\\')[0] // -srd
-        else
-            printfn $"   directory: .\\{path}\\* -> {componentId}"
-            "dir", "", path
-    // nologo: this is automated
-    // srd: for files, do not nest the FFMPEG\ directory into INSTALLDIR
-    // sreg: do not harvest registry info from the EXE's
-    // sfrag: no need for separate fragments in these components
-    // gg: i dont care what the GUID's are (at least, at the moment)
-    // dr: put these in the FFMPEG\ directory
-    heat $"{type'} {path} -nologo {maybe_srd} -sreg -sfrag -gg -dr INSTALLDIR -cg {componentId} -out {componentId.ToLower()}.g.wxs"
+run "wix" $"build -ext .wix\extensions\WixToolset.UI.wixext\5.0.2\wixext5\WixToolset.UI.wixext.dll -o FFmpeg-{version}.msi FFmpeg.g.wxs en-us.wxl"
 
-    // work around for correcting the Source path for files
-    // just a find and replace for 'SourceDir'
+// let genComponents = [
+//     "FFMPEGbin", "FFMPEG\\bin"
+//     "FFMPEGlicense", "FFMPEG\\LICENSE"
+//     "FFMPEGreadme", "FFMPEG\\README.txt"
+//     "FFMPEGdoc", "FFMPEG\\doc"
+//     "FFMPEGpresets", "FFMPEG\\presets"
+// ]
+// printfn "Generating components..."
 
-    // maybe using \ instead of / in genComponenets fixed this! no..
+// for componentId, path in genComponents do
+//     let type', maybe_srd, sourceDirName =
+//         if File.Exists path then
+//             printfn $"   file: .\\{path} -> {componentId}"
+//             "file", "-srd", path.Split('\\')[0] // -srd
+//         else
+//             printfn $"   directory: .\\{path}\\* -> {componentId}"
+//             "dir", "", path
+//     // nologo: this is automated
+//     // srd: for files, do not nest the FFMPEG\ directory into INSTALLDIR
+//     // sreg: do not harvest registry info from the EXE's
+//     // sfrag: no need for separate fragments in these components
+//     // gg: i dont care what the GUID's are (at least, at the moment)
+//     // dr: put these in the FFMPEG\ directory
+//     heat $"{type'} {path} -nologo {maybe_srd} -sreg -sfrag -gg -dr INSTALLDIR -cg {componentId} -out {componentId.ToLower()}.g.wxs"
 
-    let newText = (File.ReadAllText $"{componentId.ToLower()}.g.wxs").Replace("SourceDir", $"""SourceDir\{sourceDirName}""")
+//     // work around for correcting the Source path for files
+//     // just a find and replace for 'SourceDir'
+
+//     // maybe using \ instead of / in genComponenets fixed this! no..
+
+//     let newText = (File.ReadAllText $"{componentId.ToLower()}.g.wxs").Replace("SourceDir", $"""SourceDir\{sourceDirName}""")
     
-    use f = File.CreateText $"{componentId.ToLower()}.g.wxs"
-    f.Write newText
+//     use f = File.CreateText $"{componentId.ToLower()}.g.wxs"
+//     f.Write newText
 
 
-let product = "FFmpeg"
+// let product = "FFmpeg"
 
-printfn "Candle..."
+// printfn "Candle..."
 
-let newMainWxs = (File.ReadAllText $"{product}.wxs").Replace("$VERSION", version)
-File.WriteAllText($"{product}.g.wxs", newMainWxs)
-
-
-let genScripts =
-    Directory.EnumerateFiles "."
-    |> Seq.filter (fun s -> s.EndsWith ".g.wxs")
-    |> List.ofSeq
-
-let genScriptsStr = String.Join(" ", genScripts)
+// let newMainWxs = (File.ReadAllText $"{product}.wxs").Replace("$VERSION", version)
+// File.WriteAllText($"{product}.g.wxs", newMainWxs)
 
 
+// let genScripts =
+//     Directory.EnumerateFiles "."
+//     |> Seq.filter (fun s -> s.EndsWith ".g.wxs")
+//     |> List.ofSeq
 
-// exit 1
+// let genScriptsStr = String.Join(" ", genScripts)
 
-candle $"""-arch x64 {genScriptsStr}""" // {product}.wxs 
 
-let elapsedCandle = DateTime.Now - startTime
 
-printfn $"Candle completed in {elapsedCandle.TotalSeconds:N2} seconds"
+// // exit 1
 
-let genObjs = 
-    Directory.EnumerateFiles "."
-    |> Seq.filter (fun s -> s.EndsWith ".wixobj")
-    |> List.ofSeq
+// candle $"""-arch x64 {genScriptsStr}""" // {product}.wxs 
 
-let genObjsStr = String.Join(" ", genObjs)
+// let elapsedCandle = DateTime.Now - startTime
 
-printfn "Light..."
+// printfn $"Candle completed in {elapsedCandle.TotalSeconds:N2} seconds"
 
-// genObjsStr includes the product.wixobj
-//      -b FFMPEG -b FFMPEG/bin -b FFMPEG/presets -b FFMPEG/doc
-light $"-ext WixUIExtension -reusecab -cc cabinets -cultures:en-us -loc en-us.wxl -o {product}.msi {genObjsStr} "
+// let genObjs = 
+//     Directory.EnumerateFiles "."
+//     |> Seq.filter ((||) _.EndsWith(".wixobj")
+//     |> List.ofSeq
 
-// remove generated files
-if not (Array.contains "--keep-generated" args) then
-    List.append genScripts genObjs
-    |> List.map rm
-    |> ignore
+// let genObjsStr = String.Join(" ", genObjs)
 
-let elapsedLight = DateTime.Now - startTime - elapsedCandle
+// printfn "Light..."
 
-printfn $"Done. Elapsed time: {(elapsedCandle + elapsedLight).TotalSeconds:N2} seconds"
+// // genObjsStr includes the product.wixobj
+// //      -b FFMPEG -b FFMPEG/bin -b FFMPEG/presets -b FFMPEG/doc
+// light $"-ext WixUIExtension -reusecab -cc cabinets -cultures:en-us -loc en-us.wxl -o {product}.msi {genObjsStr} "
+
+// // remove generated files
+// if not (Array.contains "--keep-generated" args) then
+//     genObjs
+//     |> List.map rm
+//     |> ignore
+
+
+printfn $"Done. Elapsed time: {(DateTime.Now - startTime).TotalSeconds:N2} seconds"
