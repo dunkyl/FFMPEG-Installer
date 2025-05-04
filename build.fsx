@@ -56,6 +56,7 @@ let args = System.Environment.GetCommandLineArgs ()
 let fetchFFMPEG () = task {
     let! res_ver = httpClient.GetAsync "https://www.gyan.dev/ffmpeg/builds/release-version"
     let! releaseVer = res_ver.Content.ReadAsStringAsync()
+    printfn $"   Lstest verion is {releaseVer}."
 
     let releaseURL = $"https://www.gyan.dev/ffmpeg/builds/packages/ffmpeg-{releaseVer}-full_build.7z"
 
@@ -65,7 +66,7 @@ let fetchFFMPEG () = task {
     let zipFileName = filenameOf releaseURL
 
     if File.Exists zipFileName then
-        printfn $"   Found existing release at {zipFileName}."
+        printfn $"   Already have matching release at {zipFileName}."
     else
         printfn $"   Downloading release {releaseVer}..."
         do! download releaseURL
